@@ -159,7 +159,7 @@ class Board(object):
             header_row = ''.join(['%d ' % d for d in range(self.side)])
             header_row = '  ' + header_row
             row_strings = [header_row] + row_strings
-        score_string = 'Score: B=%d, W=%d' % self.score
+        score_string = 'Score: B[%s] =%d, W[%s]=%d' % (chars[PLAYER_B], self.score[0], chars[PLAYER_W], self.score[1])
         turn_string = 'Next turn: %s [%s]' % ('B' if self.turn == PLAYER_B else 'W', chars[self.turn])
         return '\n'.join([score_string, turn_string] + row_strings)
 
