@@ -1,4 +1,4 @@
-# Reverso
+# Reversi
 Simple implementation of the well-known reversi game. 
 
 ## Play
@@ -19,7 +19,7 @@ Next turn: B [◎ ]
 ```
 
 ## Future plans
-See [[ToDo.md]]
+See [ToDo.md](ToDo.md)
 
 The aim is to explore various concepts such as:
 - tree search, minimax, alpha-beta pruning
