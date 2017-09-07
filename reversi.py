@@ -231,7 +231,7 @@ class Player_Human(Player):
         print self.board
         moves = self.board.legal_moves()
         if not moves:
-            print "passing..."
+            print "No valid turns!"
             return (None, None)
         else:
             while True:
