@@ -17,6 +17,7 @@ Next turn: B [◎ ]
 6 . . . . . . . . 
 7 . . . . . . . . 
 ```
+Black and White stones may look flipped depending on the terminal (or jupyter) colour scheme.
 
 ## Future plans
 See [ToDo.md](ToDo.md)
