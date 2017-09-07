@@ -130,7 +130,7 @@ class Board(object):
             counts[-1] = 0    
         b, w = counts[1], counts[-1]
         return b, w
-    
+        
     @property
     def ordered_score(self):
         b, w = self.score
@@ -138,7 +138,7 @@ class Board(object):
             return b, w
         else:
             return w, b
-            
+    
     def __repr__(self):
         return str(self)
     
@@ -163,6 +163,7 @@ class Board(object):
         turn_string = 'Next turn: %s [%s]' % ('B' if self.turn == PLAYER_B else 'W', chars[self.turn])
         return '\n'.join([score_string, turn_string] + row_strings)
 
+
 class Game(object):
     """Run a game between two players"""
     def __init__(self, playerB=None, playerW=None):
@@ -179,7 +180,7 @@ class Game(object):
         else:
             return self.playerW
         
-    def play(self, reset=False, verbose=0):
+    def play(self, reset=True, verbose=0):
         """run a game"""
         if reset:
             self.board.reset()
@@ -193,9 +194,12 @@ class Game(object):
                 print self.board
         final_score = self.board.score
         return final_score
-    
+
+        
 class Player(object):
     """Meta-class for a player"""
+    NAME = None
+    
     def __init__(self, board=None):
         self.board = board
     
@@ -213,8 +217,11 @@ class Player(object):
             raise ValueError("Illegal move attemted: (%d, %d)" % (r, c))
         return True
 
+    
 class Player_Human(Player):
     """A player following inputs from a human"""
+    NAME = 'Human'
+    
     def __init__(self, board=None):
         super(Player_Human, self).__init__(board)
     
@@ -243,9 +250,12 @@ class Player_Human(Player):
                         return (r, c)
                 except:
                     continue
-    
+
+                    
 class Player_Random(Player):
     """A player who picks a valid turn at random"""
+    NAME = 'Random'
+    
     def __init__(self, board=None):
         super(Player_Random, self).__init__(board)
     
@@ -256,8 +266,11 @@ class Player_Random(Player):
         else:
             return (None, None)
         
+
 class Player_Greedy(Player):
     """A player who picks a turn leading to maximum gains"""
+    NAME = 'Greedy'
+    
     def __init__(self, board=None):
         super(Player_Greedy, self).__init__(board)
     
@@ -274,10 +287,13 @@ class Player_Greedy(Player):
                     best_move = (mr, mc)
             self.board.pop()
         return best_move
+
     
 class Player_Weighted(Player):
     """A player who picks a turn leading to maximum value as determined by weights
     see e.g. weights here: http://www.samsoft.org.uk/reversi/strategy.htm"""
+    NAME = 'Weighted'
+    
     WEIGHTS = np.array([
         [99, -8, 8, 6, 6, 8, -8, 99],
         [-8,-24,-4, -3, -3, -4, -24, -8],
@@ -304,3 +320,30 @@ class Player_Weighted(Player):
                     best_move = (mr, mc)
             self.board.pop()
         return best_move
+    
+
+class Tournament(object):
+    """Run a tournament between specified players"""
+    def __init__(self, players=[Player_Random(), Player_Random()], n=10, diagonal=False):
+        """each pair of players play nx2 games (incl. swapping sides)"""
+        self.players = players
+        self.n_games = n
+        self.n_players = len(players)
+        self.diagonal = diagonal
+        self.wins = np.zeros((self.n_players, self.n_players))
+        self.draws = self.wins.copy()
+        self.score = self.wins.copy() # 1 for win, 0.5 for draw, 0 for losee
+        
+    def play(self):
+        for idxB, playerB in enumerate(self.players):
+            for idxW, playerW in enumerate(self.players):
+                if not self.diagonal and idxB==idxW:  # skip games against oneself
+                    continue
+                g = Game(playerB=playerB, playerW=playerW)
+                for _ in range(self.n_games):
+                    score = g.play()
+                    if score[0] > score[1]:
+                        self.wins[idxB, idxW] += 1
+                    elif score[0] == score[1]:
+                        self.draws[idxB, idxW] += 1
+        self.score = self.wins + 0.5*self.draws # 1 for win, 0.5 for draw, 0 for losee
